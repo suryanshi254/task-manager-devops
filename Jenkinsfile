@@ -5,10 +5,10 @@ pipeline {
         stage('Install Dependencies') {
             steps {
                 sh '''
-                python3 -m venv venv
-                . venv/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
+                    python3.10 -m venv venv
+                    . venv/bin/activate
+                    pip install --upgrade pip
+                    pip install -r requirements.txt
                 '''
             }
         }
@@ -16,8 +16,8 @@ pipeline {
         stage('Run Migrations') {
             steps {
                 sh '''
-                . venv/bin/activate
-                python manage.py migrate
+                    . venv/bin/activate
+                    python manage.py migrate
                 '''
             }
         }
@@ -25,8 +25,8 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                . venv/bin/activate
-                python manage.py test
+                    . venv/bin/activate
+                    python manage.py test
                 '''
             }
         }
