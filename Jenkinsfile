@@ -2,12 +2,6 @@ pipeline {
     agent any
 
     stages {
-        stage('Clone Repository') {
-            steps {
-                git 'https://github.com/suryanshi254/task-manager-devops.git'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -40,10 +34,10 @@ pipeline {
 
     post {
         failure {
-            echo '❌ Pipeline failed. Check the console output.'
+            echo "❌ Pipeline failed. Check the logs!"
         }
         success {
-            echo '✅ Pipeline completed successfully.'
+            echo "✅ Pipeline succeeded."
         }
     }
 }
