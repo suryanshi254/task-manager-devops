@@ -4,7 +4,7 @@ pipeline {
     stages {
         stage('Clone Repository') {
             steps {
-                git branch: 'main', url: 'https://github.com/suryanshi254/task-manager-devops.git'
+                git 'https://github.com/suryanshi254/task-manager-devops.git'
             }
         }
 
@@ -12,9 +12,9 @@ pipeline {
             steps {
                 sh '''
                 python3 -m venv venv
-                source venv/bin/activate
+                . venv/bin/activate
                 pip install --upgrade pip
-                pip install -r requirements.txt || true
+                pip install -r requirements.txt
                 '''
             }
         }
@@ -22,7 +22,7 @@ pipeline {
         stage('Run Migrations') {
             steps {
                 sh '''
-                source venv/bin/activate
+                . venv/bin/activate
                 python manage.py migrate
                 '''
             }
@@ -31,19 +31,19 @@ pipeline {
         stage('Run Tests') {
             steps {
                 sh '''
-                source venv/bin/activate
-                python manage.py test || true
+                . venv/bin/activate
+                python manage.py test
                 '''
             }
         }
     }
 
     post {
-        success {
-            echo '✅ Pipeline completed successfully!'
-        }
         failure {
             echo '❌ Pipeline failed. Check the console output.'
+        }
+        success {
+            echo '✅ Pipeline completed successfully.'
         }
     }
 }
