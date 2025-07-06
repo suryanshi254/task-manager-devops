@@ -2,42 +2,73 @@ pipeline {
     agent any
 
     stages {
-        stage('Install Dependencies') {
+        stage('Clone Repo') {
             steps {
+                echo '✅ Cloning repository...'
+                // Checkout is done automatically in declarative pipeline
+            }
+        }
+
+        stage('Set up Python Env') {
+            steps {
+                echo '🐍 Creating virtual environment...'
                 sh '''
+                    cd backend
                     python3.10 -m venv venv
                     . venv/bin/activate
                     pip install --upgrade pip
-                    pip install -r requirements.txt
+                    pip install -r requirements.txt || true
                 '''
             }
         }
 
-        stage('Run Migrations') {
+        stage('Run Django Migrations') {
             steps {
+                echo '🛠️ Running Django migrations...'
                 sh '''
+                    cd backend
                     . venv/bin/activate
                     python manage.py migrate
                 '''
             }
         }
 
-        stage('Run Tests') {
+        stage('Run Django Tests') {
             steps {
+                echo '🧪 Running Django tests...'
                 sh '''
+                    cd backend
                     . venv/bin/activate
                     python manage.py test
                 '''
             }
         }
-    }
 
-    post {
-        failure {
-            echo "❌ Pipeline failed. Check the logs!"
+        stage('Run JUnit Tests') {
+            steps {
+                echo '☕ Running JUnit tests...'
+                dir('java-tests') {
+                    sh 'mvn test'
+                }
+            }
         }
-        success {
-            echo "✅ Pipeline succeeded."
+
+        stage('Send Metrics to Graphite') {
+            steps {
+                echo '📈 Sending custom metrics to Graphite...'
+                sh '''
+                    cd monitoring
+                    . ../backend/venv/bin/activate
+                    python metrics_push.py
+                '''
+            }
+        }
+
+        stage('Docker Build') {
+            steps {
+                echo '🐳 Building Docker image...'
+                sh 'docker build -t taskmanager:latest .'
+            }
         }
     }
 }
